@@ -1,0 +1,14 @@
+name: MCF5
+version: 1.0
+description: Velocity-Interactive!
+main: me.mcf5.main.MCF5
+commands:
+  reset:
+  delete:
+  key:
+  public:
+  broadoff:
+  votekick:
+  refine:
+  license:
+  chat:
