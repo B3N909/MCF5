@@ -1,6 +1,7 @@
 package me.mcf5.feat;
 
 import me.mcf5.main.MCF5;
+import me.mcf5.main.Util;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,7 +20,10 @@ public class MenuUI implements Listener{
 		if(e.getInventory().getType() == InventoryType.PLAYER){
 			Player p = (Player)e.getPlayer();
 			p.closeInventory();
+			Util.sendMessage(p, "Opened Inventory.");
 			
+		}else{
+			Util.sendMessage((Player)e.getPlayer(), e.getInventory().getType().getDefaultTitle() + "");
 		}
 	}
 	

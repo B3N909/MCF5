@@ -27,6 +27,7 @@ public class MCF5 extends JavaPlugin implements Listener{
 	public void onEnable(){
 		saveConfig();
         PluginManager pm = Bukkit.getPluginManager();
+        pm.registerEvents(this, this);
         pm.registerEvents(new DoorListener(pm), this);
         pm.registerEvents(new Door(this), this);
         pm.registerEvents(new Broadcaster(this), this);
@@ -106,7 +107,7 @@ public class MCF5 extends JavaPlugin implements Listener{
 	
 	@EventHandler
 	public void onCommand(PlayerCommandPreprocessEvent e){
-		Logger.log("[cmd] SENDER - " + e.getPlayer().getName().toLowerCase() + " COMMAND - " + e.getMessage().toString());
+		Logger.log("[cmd]: " + e.getPlayer().getName().toLowerCase() + " ran " + e.getMessage().toString());
 	}
 	
 }

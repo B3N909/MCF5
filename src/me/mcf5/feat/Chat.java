@@ -6,9 +6,8 @@ import me.mcf5.main.Util;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
+import org.bukkit.Material;
 import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -27,16 +26,16 @@ public class Chat implements Listener, CommandExecutor{
 	}
 	
 	//TALK GLOBAL
-	//@EventHandler
-	//public void onTabChat(PlayerChatTabCompleteEvent  e){
-	//	Player p = e.getPlayer();
-	//	String m = e.getChatMessage();
-	//	e.getTabCompletions().clear();
-	//	Chat.ChatMsg(m, p, true);
-	//	org.bukkit.inventory.Inventory inv = Bukkit.getServer().createInventory(null, 9);
-	//	p.openInventory(inv);
-	//	p.closeInventory();
-	//}
+	@EventHandler
+	public void onTabChat(PlayerChatTabCompleteEvent  e){
+		Player p = e.getPlayer();
+		String m = e.getChatMessage();
+		e.getTabCompletions().clear();
+		Chat.ChatMsg(m, p, true);
+		org.bukkit.inventory.Inventory inv = Bukkit.getServer().createInventory(null, 9);
+		p.openInventory(inv);
+		p.closeInventory();
+	}
 	
 	//TALK MSG
 	public static void ChatMsg(String msg, Player p, boolean isPublic){
@@ -46,10 +45,10 @@ public class Chat implements Listener, CommandExecutor{
 			
 			if(isPublic){ //LOGGING MESSAGES
 				//PUBLIC
-				Logger.log("[global] SENDER - " + p.getName().toLowerCase() + " MSG - " + msg);
+				Logger.log("[global] - " + p.getName().toLowerCase() + " saidd - '" + msg + "'");
 			}else{
 				//NON-PUBLIC
-				Logger.log("[local] SENDER - " + p.getName().toLowerCase() + " MSG - " + msg);
+				Logger.log("[local] - " + p.getName().toLowerCase() + " saidd - '" + msg + "'");
 			}
 			
 			for(Player p1 : Bukkit.getOnlinePlayers()){
@@ -67,6 +66,7 @@ public class Chat implements Listener, CommandExecutor{
 						p1.sendMessage(ChatColor.GRAY + "[G]" + p.getName().toString() + ":" + ChatColor.WHITE + msg);
 					}
 				}else{
+					Bukkit.getLogger().info(p1.getName().toLowerCase());
 					//CHECK FOR DISTANCE
 					if(p.getLocation().distance(p1.getLocation()) < 20 || p.getLocation().distance(p1.getLocation()) > -20){
 						if(p1.equals(p)){

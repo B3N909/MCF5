@@ -134,6 +134,7 @@ public class CraftingUI implements Listener{
 		}, 5L);
 	}
 	
+	//#REGION UTILS
 	public void Save(Location loc, ItemStack[] m){
 		Config config = new Config("crafting");
 		config.Save();
@@ -209,6 +210,7 @@ public class CraftingUI implements Listener{
 		return loc;
 			
 	}
+	//#END REGION
 	
 	//CLEARING CRAFTING ICONS UI
 	public void ClearCraftingDrops(){
