@@ -45,10 +45,10 @@ public class Chat implements Listener, CommandExecutor{
 			
 			if(isPublic){ //LOGGING MESSAGES
 				//PUBLIC
-				Logger.log("[global] - " + p.getName().toLowerCase() + " saidd - '" + msg + "'");
+				Logger.log("[global] - " + p.getName().toLowerCase() + " said - " + msg);
 			}else{
 				//NON-PUBLIC
-				Logger.log("[local] - " + p.getName().toLowerCase() + " saidd - '" + msg + "'");
+				Logger.log("[local] - " + p.getName().toLowerCase() + " said - " + msg);
 			}
 			
 			for(Player p1 : Bukkit.getOnlinePlayers()){

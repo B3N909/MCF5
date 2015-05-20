@@ -3,7 +3,11 @@ package me.mcf5.main;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class Logger {
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
+
+public class Logger implements Listener{
 	
 	public static Config config;
 	
@@ -27,6 +31,12 @@ public class Logger {
 	public static void Initialize(){
 		config = new Config(getDay());
 		config.Save();
+	}
+	
+	
+	@EventHandler
+	public void onDeath(PlayerDeathEvent e){
+		log("[death] " + e.getEntity().getKiller().getName() + " ---> " + e.getEntity().getName());
 	}
 	
 	

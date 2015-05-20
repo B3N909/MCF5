@@ -1,22 +1,36 @@
 package me.mcf5.feat;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.minecraft.server.v1_8_R1.Container;
+import net.minecraft.server.v1_8_R1.InventoryCrafting;
+import net.minecraft.server.v1_8_R1.CraftingManager;
+import net.minecraft.server.v1_8_R1.PacketPlayOutSetSlot;
+import net.minecraft.server.v1_8_R1.WorldServer;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.block.Sign;
+import org.bukkit.craftbukkit.v1_8_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R1.inventory.CraftInventory;
+import org.bukkit.craftbukkit.v1_8_R1.inventory.CraftItemStack;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
@@ -24,63 +38,162 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 
 import me.mcf5.main.Config;
-import me.mcf5.main.Inventory;
 import me.mcf5.main.MCF5;
 import me.mcf5.main.Util;
 
 public class CraftingUI implements Listener{
+	
+	
+	
+	
+	
+	
 	private static final ItemStack[][] ItemStack = null;
 	MCF5 plugin;
 	public CraftingUI(MCF5 plugin){
 		this.plugin = plugin;
 	}
+	
 
 	
+	
+	
+	
+	
+	
+	
+	ItemStack[] oldMatrix;
+	ItemStack[] currentMatrix;
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	boolean isHasClosed;
 	//LOADING CRAFTING CONTENTS
 	@EventHandler
 	public void onInventoryClose(InventoryCloseEvent e){
 		org.bukkit.inventory.Inventory inv = e.getInventory();
 		if(inv.getType() == InventoryType.WORKBENCH){
-			Player p = (Player) e.getPlayer();
+			final Player p = (Player) e.getPlayer();
 			Location loc = p.getTargetBlock(null, 10).getLocation();
 			Save(loc, ((CraftingInventory) e.getInventory()).getMatrix());
 			e.getInventory().clear();
+			isHasClosed = true;
+			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){
+				public void run(){
+					isHasClosed = false;
+				}
+			}, 7L);
 		}
 	}
+
+
+	
+	
+	
 	
 	//SAVING CRAFTING CONTENTS
 	@EventHandler
 	public void onInventoryOpen(InventoryOpenEvent e){
-		if(e.getInventory().getType() == InventoryType.WORKBENCH){
-			CraftingInventory inv = (CraftingInventory)e.getInventory();
-			Location loc = e.getPlayer().getTargetBlock(null, 10).getLocation();
-			inv.setMatrix(Get(loc));
-			Update((Player)e.getPlayer(), inv.getMatrix());
-			inv.setMatrix(LoreUpdate(inv.getMatrix()));
+		if(e.getInventory().getType() == InventoryType.WORKBENCH && e.getPlayer().getTargetBlock(null, 10).getType().equals(Material.WORKBENCH)){
+			Player p = (Player)e.getPlayer();
+			if(Conveyor.getSignsNear(p.getTargetBlock(null, 10).getLocation()) == null || Conveyor.getValue(Conveyor.getSignsNear(p.getTargetBlock(null, 10).getLocation()))){
+				CraftingInventory inv = (CraftingInventory)e.getInventory();
+				Location loc = e.getPlayer().getTargetBlock(null, 10).getLocation();
+				inv.setMatrix(Get(loc));
+				Update((Player)e.getPlayer(), inv.getMatrix());
+				inv.setMatrix(LoreUpdate(inv.getMatrix()));
+				oldMatrix = inv.getMatrix();
+				currentMatrix = inv.getMatrix();		
+				InventoryCrafting handle1 = (InventoryCrafting)((CraftInventory)inv).getInventory();
+				WorldServer world = ((CraftWorld)Util.getDefWorld()).getHandle();
+				CraftingManager.getInstance().craft(handle1, world);
+				//p.updateInventory();
+				InventoryCrafting handle = (InventoryCrafting)((CraftInventory)inv).getInventory();
+				int id = 0;
+				try {
+					Field field = InventoryCrafting.class.getDeclaredField("d");
+					field.setAccessible(true);
+					Container container = (Container) field.get(handle);
+					id = container.windowId;
+				} catch (Exception ex){
+					ex.printStackTrace();
+				}
+				net.minecraft.server.v1_8_R1.ItemStack stack = CraftItemStack.asNMSCopy(inv.getItem(0));
+				PacketPlayOutSetSlot packet = new PacketPlayOutSetSlot(id, 0, stack);
+				CraftPlayer cp = (CraftPlayer) p;
+				cp.getHandle().playerConnection.sendPacket(packet);
+			}else{
+				p.playSound(p.getLocation(), Sound.CLICK, 10, 1);
+				e.setCancelled(true);
+			}
+			
+		}else if(e.getInventory().getType() == InventoryType.FURNACE && e.getPlayer().getTargetBlock(null, 10).getType().equals(Material.FURNACE)){
+			Player p = (Player)e.getPlayer();
+			if(Conveyor.getSignsNear(p.getTargetBlock(null, 10).getLocation()) == null || Conveyor.getValue(Conveyor.getSignsNear(p.getTargetBlock(null, 10).getLocation()))){
+				
+			}else{
+				p.playSound(p.getLocation(), Sound.CLICK, 10, 1);
+				e.setCancelled(true);
+			}
 		}
 	}
+	
+	
+	
+	
+	
+	
 	
 	//SETTING CRAFTING ICONS UI
 	@EventHandler
 	public void onCrafting(final PrepareItemCraftEvent e){
 		final Player p = (Player)e.getView().getPlayer();
 		if(canRepeat() && e.getInventory().getMatrix() != null){
-			Update(p, e.getInventory().getMatrix());
-			e.getInventory().setMatrix(LoreUpdate(e.getInventory().getMatrix()));
+			oldMatrix = currentMatrix;
+			currentMatrix = e.getInventory().getMatrix();
+			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){
+				public void run(){
+					if(!(isHasClosed)){
+						Update(p, e.getInventory().getMatrix()); //UPDATE
+						e.getInventory().setMatrix(LoreUpdate(e.getInventory().getMatrix())); //FIX LORES
+					}
+				}
+			}, 5L);
 		}
 	}
 	
+	
+	
+	
+	
+	
 	//REMOVING CRAFTING ICONS UI
 	@EventHandler
-	public void onCrafted(CraftItemEvent e){
-		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){
-			@Override
-			public void run() {
-				ClearCraftingDrops();
-			}
-			
-		}, 10L);
+	public void onCrafted(final CraftItemEvent e){
+		ClearCraftingDrops(ViewersToViewer(e.getInventory().getViewers()).getTargetBlock(null, 10).getLocation());
 	}
+	
+	
+	
+	
+	
+	
+	//GETS CURRENT VIEWER
+	public Player ViewersToViewer(List<HumanEntity> viewers){
+		return (Player) viewers.get(0);
+	}
+	
+	
+	
+	
+	
 	
 	//REMOVED ITEM LORE FROM MATRIX AFTER DROPS
 	public ItemStack[] LoreUpdate(ItemStack[] i){
@@ -96,7 +209,6 @@ public class CraftingUI implements Listener{
 							ItemMeta meta = m.getItemMeta();
 							meta.setLore(lore);
 							m.setItemMeta(meta);
-							Bukkit.getLogger().info(m.getItemMeta().getLore().get(0));
 						}
 					}
 				}
@@ -107,6 +219,11 @@ public class CraftingUI implements Listener{
 		return i;
 	}
 	
+	
+	
+	
+	
+	
 	//UPDATE CRAFTING ICONS UI
 	@SuppressWarnings("deprecation")
 	public void Update(final Player p , final ItemStack[] oldMatrix){
@@ -114,7 +231,7 @@ public class CraftingUI implements Listener{
 			@Override
 			public void run() {
 				int i = 1;
-				ClearCraftingDrops();
+				ClearCraftingDrops(p.getTargetBlock(null, 10).getLocation());
 				ItemStack[] Matrix = oldMatrix.clone();
 				for(ItemStack n : Matrix){
 					if(n != null && n.getType() != Material.AIR){
@@ -134,6 +251,11 @@ public class CraftingUI implements Listener{
 		}, 5L);
 	}
 	
+	
+	
+	
+	
+	
 	//#REGION UTILS
 	public void Save(Location loc, ItemStack[] m){
 		Config config = new Config("crafting");
@@ -146,6 +268,9 @@ public class CraftingUI implements Listener{
 			i++;
 		}
 	}
+	
+	
+	
 	
 	public ItemStack[] Get(Location loc){
 		Config config = new Config("crafting");
@@ -161,13 +286,22 @@ public class CraftingUI implements Listener{
 	}
 	
 	
+	
+	
+	
 	public String toString(Location loc){
 		return split(loc.getX() + "") + "," + split(loc.getY() + "") + "," + split(loc.getZ() + "");
 	}
 	
+	
+	
+	
 	public String split(String s){
 		return s.split("\\.", 2)[0];
 	}
+	
+	
+	
 	
 	public Location toLocation(String s){
 		Location loc = null;
@@ -184,6 +318,9 @@ public class CraftingUI implements Listener{
 		}
 		return loc;
 	}
+	
+	
+	
 	
 	
 	
@@ -212,20 +349,30 @@ public class CraftingUI implements Listener{
 	}
 	//#END REGION
 	
+	
+	
+	
+	
 	//CLEARING CRAFTING ICONS UI
-	public void ClearCraftingDrops(){
+	public void ClearCraftingDrops(Location loc){
 		for(Item entity : Util.getDefWorld().getEntitiesByClass(Item.class)){
 			if(entity.getItemStack().hasItemMeta()){
 				if(entity.getItemStack().getItemMeta().hasLore()){
 					for(String s : entity.getItemStack().getItemMeta().getLore()){
 						if(s.contains("CRAFTING")){
-							entity.remove();
+							if(entity.getLocation().distance(loc) < 2)
+								entity.remove();
 						}
 					}
 				}
 			}
 		}
 	}
+	
+	
+	
+	
+	
 	
 	//SETTING CRAFTING ICONS UI NON-INTERACTABLE
 	@EventHandler
@@ -239,9 +386,31 @@ public class CraftingUI implements Listener{
 		}
 	}
 	
+	
+	
+	
+	
+	//NO DESPAWN CRAFTING ICONS UI
+	@EventHandler
+	public void onDespawn(ItemDespawnEvent e){
+		if(e.getEntity().getItemStack().hasItemMeta()){
+			ItemStack en = e.getEntity().getItemStack();
+			if(en.getItemMeta().hasLore()){
+				for(String s : en.getItemMeta().getLore()){
+					if(s.contains("CRAFTING")){
+						e.setCancelled(true);
+					}
+				}
+			}
+		}
+	}
+	
+	
+	
+	
+	
 	//ANTI-SPAM
 	boolean repeat = false;
-	@SuppressWarnings("deprecation")
 	public boolean canRepeat(){
 		if(repeat == false){
 			repeat = true;
@@ -256,5 +425,12 @@ public class CraftingUI implements Listener{
 		}
 		return false;
 	}
+	
+	
+	
+	
+	
+	
+	
 	
 }

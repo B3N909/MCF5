@@ -2,6 +2,7 @@ package me.mcf5.main;
 
 import me.mcf5.feat.Broadcaster;
 import me.mcf5.feat.Chat;
+import me.mcf5.feat.Conveyor;
 import me.mcf5.feat.CraftingUI;
 import me.mcf5.feat.Door;
 import me.mcf5.feat.DoorListener;
@@ -10,7 +11,6 @@ import me.mcf5.feat.MenuUI;
 import me.mcf5.feat.Refine;
 import me.mcf5.feat.VoteKick;
 import me.mcf5.gui.UIDatabase;
-
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -32,7 +32,6 @@ public class MCF5 extends JavaPlugin implements Listener{
         pm.registerEvents(new Door(this), this);
         pm.registerEvents(new Broadcaster(this), this);
 		pm.registerEvents(new VoteKick(this), this);
-        pm.registerEvents(new Chat(), this);
 		pm.registerEvents(new MiscListener(this), this);
 		pm.registerEvents(new Refine(this), this);
 		pm.registerEvents(new License(this), this);
@@ -40,6 +39,8 @@ public class MCF5 extends JavaPlugin implements Listener{
 		pm.registerEvents(new CraftingUI(this), this);
 		pm.registerEvents(new MenuUI(this), this);
 		pm.registerEvents(new Chat(), this);
+		pm.registerEvents(new Logger(), this);
+		pm.registerEvents(new Conveyor(this), this);
 		
 		UIDatabase.Initialize();
 		
@@ -47,6 +48,7 @@ public class MCF5 extends JavaPlugin implements Listener{
         
         Logger.Initialize();
 		
+        
 		
 		getCommand("reset").setExecutor(new DoorListener(pm));	
 		getCommand("delete").setExecutor(new DoorListener(pm));	
@@ -94,7 +96,6 @@ public class MCF5 extends JavaPlugin implements Listener{
 					c = 0;
 				}
 				getConfig().set("VoteKick.cooldown", Integer.valueOf(c));
-				saveConfig();
 			}
 			
 		}, 0L, 1200L);

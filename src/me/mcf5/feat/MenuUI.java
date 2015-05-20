@@ -21,9 +21,6 @@ public class MenuUI implements Listener{
 			Player p = (Player)e.getPlayer();
 			p.closeInventory();
 			Util.sendMessage(p, "Opened Inventory.");
-			
-		}else{
-			Util.sendMessage((Player)e.getPlayer(), e.getInventory().getType().getDefaultTitle() + "");
 		}
 	}
 	

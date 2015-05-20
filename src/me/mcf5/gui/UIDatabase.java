@@ -45,7 +45,7 @@ public class UIDatabase implements Listener {
 		if(e.getInventory().getName().equalsIgnoreCase("Current License(s)")){
 			Inventory inv = e.getInventory();
 			Player p = (Player) e.getPlayer();
-			if(p.hasPermission("ucars.car")){
+			if(p.hasPermission("ucars.cars")){
 				inv.addItem(me.mcf5.main.Inventory.setName(new ItemStack(Material.MINECART, 10), ChatColor.GOLD + "Drivers License"));
 			}else{
 				inv.addItem(me.mcf5.main.Inventory.setName(new ItemStack(Material.MINECART, 1), ChatColor.RED + "[Missing] Drivers License"));

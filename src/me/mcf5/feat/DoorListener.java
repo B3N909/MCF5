@@ -89,6 +89,7 @@ public class DoorListener implements Listener, CommandExecutor{
 						state.setData((MaterialData) opn);
 						state.update();
 						p.playSound(p.getLocation(), Sound.DOOR_CLOSE, 10, 1);
+						
 					}else{
 						opn.setOpen(true);
 						state.setData((MaterialData) opn);
