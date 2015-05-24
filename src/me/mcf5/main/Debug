@@ -6,10 +6,19 @@ import org.bukkit.inventory.ItemStack;
 public class Debug {
 	public static void main(String[] args){
 		System.out.println("Startup...");
-		ItemStack[] one = new ItemStack[]{item(Material.STONE, 5), item(Material.STONE, 5), item(Material.WOOD, 1)};
-		ItemStack[] two	= new ItemStack[]{item(Material.STONE, 1), item(Material.WOOD, 1), item(Material.STONE, 1)};
 		
-		ArrayI.log(ArrayI.combineEven(one, two));
+		
+		
+		
+		ItemStack[] one = new ItemStack[]{item(Material.LOG, 22), item(Material.WOOD_STEP, 5), item(Material.WOOD, 1)};
+		ItemStack[] two	= new ItemStack[]{item(Material.WOOD_STEP, 1), item(Material.WOOD_STEP, 1), item(Material.WOOD_STEP, 1), item(Material.LOG, 1), item(Material.WOOD, 1), item(Material.LOG, 1), item(Material.LOG, 1), item(Material.WOOD, 1), item(Material.LOG, 1)};
+		
+		
+		System.out.println("~Original~");
+		ArrayI.logEvenly(two);
+		
+		System.out.println("~Combined~");
+		ArrayI.logEvenly(ArrayI.combineEven(one, two));
 	}
 	
 	
