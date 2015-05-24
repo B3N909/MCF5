@@ -3,7 +3,6 @@ package me.mcf5.main;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
-
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -27,20 +26,24 @@ public class ArrayI {
 	}
 	
 	public static ArrayList<ItemStack> apply(ItemStack[] split, ItemStack[] two){
-		ArrayList<ItemStack> list = new ArrayList<>();
-		list = toArrayList(two);
+		ItemStack[] list = new ItemStack[two.length];
+		list = two.clone();
 		int i = 0;
 		int l = 0;
 		if(split == null || split.length == 0)
 			return null;
 		for(ItemStack s : two){
-			if(s.getType().equals(split[0])){
-				list.set(i, new ItemStack(list.get(i).getType(), list.get(i).getAmount() + split[l].getAmount()));
-				i++;
+			if(s.getType().equals(split[0].getType())){
+				if(list[i] != null){
+					if(split.length > l){
+						list[i] = new ItemStack(list[i].getType(), list[i].getAmount() + split[l].getAmount());
+						l++;
+					}
+				}
 			}
 			i++;
 		}
-		return list;
+		return toArrayList(list);
 	}
 	
 	
@@ -85,10 +88,8 @@ public class ArrayI {
 					i++;
 				}
 				int s = 0;
-				while((list.get(s).getAmount() + collect) < 0){
+				while((list.get(s).getAmount() + collect) < 0)
 					s++;
-				}
-				System.out.println(collect + " | " + (collect - item.getAmount()));
 				collect = item.getAmount() - collect;
 				list.set(s, new ItemStack(list.get(s).getType(), list.get(s).getAmount() + collect));
 			}
@@ -152,6 +153,16 @@ public class ArrayI {
 		for(ItemStack s : list){
 			System.out.println("(" + s.getType().toString() + ", " + s.getAmount() + ")");
 		}
+	}
+	
+	public static void logEvenly(ItemStack[] contents){
+		System.out.println(toString(contents[0]) + toString(contents[1]) + toString(contents[2]));
+		System.out.println(toString(contents[3]) + toString(contents[4]) + toString(contents[5]));
+		System.out.println(toString(contents[6]) + toString(contents[7]) + toString(contents[8]));
+	}
+	
+	public static String toString(ItemStack s){
+		return "(" + s.getType() + ", " + s.getAmount() + ")";
 	}
 	
 }
