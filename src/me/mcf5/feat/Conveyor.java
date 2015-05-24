@@ -1,6 +1,8 @@
 package me.mcf5.feat;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.logging.Level;
 
 import me.mcf5.main.Config;
@@ -107,25 +109,30 @@ public class Conveyor implements Listener {
 	
 	
 	
-	public ItemStack[] add(ItemStack[] one, ItemStack[] two)
+	public ArrayList<ItemStack> add(ArrayList<ItemStack> one, ArrayList<ItemStack> two)
 	{
 		
 		
 		for(ItemStack s : one) //For all Unique Materials to be added
 		{
+			int amount = 0; for(ItemStack amo : two) { if(s.getType().equals(amo.getType())) { amount++; } } //Gets amount of one in two
+			if(amount == 1) { two.add(s); } //Add if we have one
 			
-			int amount = getAmount(two, s.getType()); //Get amount of every item to be added in 'two'
-			if(amount != 0) //If we have anything to add from one -> two
-			{
-				
-				
-			}
+			
+			
 		}
 		
 		
 		
 		return two;
 	}
+	
+	
+	
+	
+
+
+
 	
 	public int[] Divide(int i, int am){
 		if((i / am) % 1 == 0){ //Whole Number
