@@ -1,4 +1,4 @@
-package me.mcf5.main;
+package me.mcf5.logic;
 
 import java.util.ArrayList;
 import java.util.HashMap;
