@@ -2,6 +2,7 @@ package me.mcf5.feat;
 
 import java.util.List;
 
+import me.mcf5.main.Config;
 import me.mcf5.main.MCF5;
 import me.mcf5.main.Util;
 
@@ -37,6 +38,8 @@ public class Buisness implements Listener, CommandExecutor{
 					p.sendMessage("/cm withdraw <amount> - Takes company's networth away");
 					p.sendMessage("/cm pay <company> <amount> - Pays a company");
 					p.sendMessage("/cm buy <company> <amount> - Purchases a amount of stock from a company");
+					p.sendMessage("/cm info <company> - Displays stock holdings and info on a company");
+					p.sendMessage("/cm sell <company> <amount>");
 				}else if(args[0].equalsIgnoreCase("stats")){
 					if(Company.isOwner(p)){
 						p.sendMessage(ChatColor.BLUE + "You own " + ChatColor.GOLD + Company.get(p).name.toUpperCase() + ChatColor.BLUE +", NetWorth of: " + ChatColor.GOLD + Company.get(p).balance() + "$");
@@ -53,7 +56,7 @@ public class Buisness implements Listener, CommandExecutor{
 						p.sendMessage("You do not own a company!");
 					}
 				}else if(args[0].equalsIgnoreCase("create")){
-					p.sendMessage("Usage /cm create <name>");
+					p.sendMessage("/cm create <name>");
 				}else if(args[0].equalsIgnoreCase("list")){
 					List<String> companys = Company.listCompanys();
 					if(companys != null && companys.toArray().length != 0){
@@ -70,6 +73,8 @@ public class Buisness implements Listener, CommandExecutor{
 					}else{
 						p.sendMessage("No company has been created yet!");
 					}				
+				}else if(args[0].equalsIgnoreCase("me")){
+					p.sendMessage("/cm me <company>");
 				}
 			}else if(args.length == 2){
 				if(args[0].equalsIgnoreCase("create")){
@@ -123,8 +128,21 @@ public class Buisness implements Listener, CommandExecutor{
 					}else{
 						p.sendMessage("Invalid Amount!");
 					}
-				}else if(args[0].equalsIgnoreCase("select")){
-					
+				}else if(args[0].equalsIgnoreCase("info")){
+					if(Company.exists(args[1])){
+						Company cmp = Company.get(args[1]);
+						p.sendMessage(ChatColor.GOLD + Company.get(p).name.toUpperCase() + ChatColor.BLUE +", NetWorth of: " + ChatColor.GOLD + Company.get(p).balance() + "$");
+						p.sendMessage(ChatColor.BLUE + "This company has " + ChatColor.GOLD + Company.get(p).members.toArray().length + ChatColor.BLUE + " employees!");
+						p.sendMessage(ChatColor.BLUE + "1 Share is worth " + ChatColor.GOLD + (double)cmp.stockPricePerShare(cmp) + "$" + ChatColor.BLUE + ", 5 Shares are " + ChatColor.GOLD + (double)cmp.stockPricePerShare(cmp) * 5 + "$" + ChatColor.BLUE + ", and 100 Shares are " + ChatColor.GOLD + cmp.stockPricePerShare(cmp) * 100 + "$");
+						if(getShares(cmp, p) != 0){
+							int shares = getShares(cmp, p);
+							p.sendMessage(ChatColor.BLUE + "You own " + ChatColor.GOLD + shares + ChatColor.BLUE + " worth " + (double)(cmp.stockPricePerShare(cmp) * shares) + "$");
+						}else{
+							p.sendMessage(ChatColor.BLUE + "You own " + ChatColor.GOLD + "0 " + ChatColor.BLUE + "Shares");
+						}
+					}else{
+						p.sendMessage("Company does not exist!");
+					}
 				}
 			}else if(args.length == 3){
 				if(args[0].equalsIgnoreCase("pay")){
@@ -154,25 +172,44 @@ public class Buisness implements Listener, CommandExecutor{
 					}else{
 						p.sendMessage("Company does not exist!");
 					}
-				}
-			}else if(args[0].equalsIgnoreCase("buy")){
-				//cm buy <company> <price>
-				if(Company.exists(args[1])){
-					if(tryParseInteger(args[2])){
-						Company cmp = Company.get(args[1]);
-						int amount = Integer.parseInt(args[2]);
-						if(plugin.econ.getBalance(p) >= cmp.stockPricePerShare() * amount){
-							plugin.econ.withdrawPlayer(p, cmp.stockPricePerShare() * amount);
-							addShares(cmp, p, amount);
-							p.sendMessage(ChatColor.BLUE + "Bought " + ChatColor.GOLD + amount + ChatColor.BLUE + " shares of " + ChatColor.GOLD + cmp.name.toUpperCase() + ChatColor.BLUE + " is worth " + ChatColor.GOLD + cmp.stockPricePerShare() * amount + "$");
+				}else if(args[0].equalsIgnoreCase("buy")){
+					//cm buy <company> <price>
+					if(Company.exists(args[1])){
+						if(tryParseInteger(args[2])){
+							Company cmp = Company.get(args[1]);
+							int amount = Integer.parseInt(args[2]);
+							if(plugin.econ.getBalance(p) >= cmp.stockPricePerShare(cmp) * amount){
+								plugin.econ.withdrawPlayer(p, cmp.stockPricePerShare(cmp) * amount);
+								addShares(cmp, p, amount);
+								cmp.deposit(cmp.stockPricePerShare(cmp) * amount);
+								p.sendMessage(ChatColor.BLUE + "Bought " + ChatColor.GOLD + amount + ChatColor.BLUE + " shares of " + ChatColor.GOLD + cmp.name.toUpperCase() + ChatColor.BLUE + " is worth " + ChatColor.GOLD + cmp.stockPricePerShare(cmp) * amount + "$");
+							}else{
+								p.sendMessage(ChatColor.BLUE + "Not enough founds, " + ChatColor.GOLD + amount + ChatColor.BLUE + " shares of " + ChatColor.GOLD + cmp.name.toUpperCase() + ChatColor.BLUE + " is worth " + ChatColor.GOLD + cmp.stockPricePerShare(cmp) * amount + "$");
+							}
 						}else{
-							p.sendMessage(ChatColor.BLUE + "Not enough founds, " + ChatColor.GOLD + amount + ChatColor.BLUE + " shares of " + ChatColor.GOLD + cmp.name.toUpperCase() + ChatColor.BLUE + " is worth " + ChatColor.GOLD + cmp.stockPricePerShare() * amount + "$");
+							p.sendMessage("Invalid Amount!");
 						}
 					}else{
-						p.sendMessage("Invalid Amount!");
+						p.sendMessage("Company does not exist!");
 					}
-				}else{
-					p.sendMessage("Company does not exist!");
+				}else if(args[0].equalsIgnoreCase("sell")){
+					if(Company.exists(args[1])){
+						if(tryParseInteger(args[2])){
+							Company cmp = Company.get(args[2]);
+							int amount = Integer.parseInt(args[2]);
+							if(getShares(cmp, p) - amount >= 0){
+								plugin.econ.depositPlayer(p, cmp.stockPricePerShare(cmp) * amount);
+								takeShares(cmp, p, amount);
+								p.sendMessage(ChatColor.BLUE + "Sold " + ChatColor.GOLD + amount + ChatColor.BLUE + " shares in " + ChatColor.GOLD + cmp.name.toUpperCase() + ChatColor.BLUE + " for " + ChatColor.GOLD + cmp.stockPricePerShare(cmp) * amount + "$");
+							}else{
+								p.sendMessage("Not enought Shares to sell!");
+							}
+						}else{
+							p.sendMessage("Invalid Amount!");
+						}
+					}else{
+						p.sendMessage("Company does not exist!");
+					}
 				}
 			}
 		}
@@ -198,7 +235,25 @@ public class Buisness implements Listener, CommandExecutor{
 	}
 	
 	private void addShares(Company cmp, Player p, int amount){
-		
+		Config cfg = new Config("stock");
+		cfg.Save();
+		int oldAmount = cfg.getConfig().getInt(p.getName().toLowerCase() + "." + cmp.name.toLowerCase());
+		cfg.getConfig().set(p.getName().toLowerCase() + "." + cmp.name.toLowerCase(), Integer.valueOf(oldAmount + amount));
+		cfg.Save();
+	}
+	
+	private void takeShares(Company cmp, Player p, int amount){
+		Config cfg = new Config("stock");
+		cfg.Save();
+		int oldAmount = cfg.getConfig().getInt(p.getName().toLowerCase() + "." + cmp.name.toLowerCase());
+		cfg.getConfig().set(p.getName().toLowerCase() + "." + cmp.name.toLowerCase(), Integer.valueOf(oldAmount - amount));
+		cfg.Save();
+	}
+	
+	private int getShares(Company cmp, Player p){
+		Config cfg = new Config("stock");
+		cfg.Save();
+		return cfg.getConfig().getInt(p.getName().toLowerCase() + "." + cmp.name.toLowerCase());
 	}
 	
 	

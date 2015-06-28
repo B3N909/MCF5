@@ -177,8 +177,9 @@ public class Company {
 		cfg.Save();
 	}
 	
-	public double stockPricePerShare(){
-		return balance / 10000;
+	public static double stockPricePerShare(Company cmp){
+		System.out.println(cmp.balance() + " / 1000 = " + cmp.balance/1000);
+		return cmp.balance() / 500000;
 	}
 	
 }
