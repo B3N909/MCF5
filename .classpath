@@ -4,6 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="C:/Users/Ben/Desktop/DarkRP/bukkit.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Ben/Desktop/DarkRP/plugins/BarAPI.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Ben/Desktop/DarkRP/craftbukkit-1.8.3-R0.1-SNAPSHOT-latest.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ben/Desktop/DarkRP/plugins/Vault.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

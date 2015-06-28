@@ -61,6 +61,8 @@ public class Refine implements Listener, CommandExecutor{
 				itemAmount += inv.getSize(i);
 		if(itemAmount == 0){
 			Util.sendMessage(p, "Nothing to refine");
+			plugin.getConfig().set(p.getName().toLowerCase() + ".refine", false);
+			plugin.saveConfig();
 			return;
 		}
 		long delay = itemAmount * 6; //Calculating Delay

@@ -1,19 +1,17 @@
 package me.mcf5.feat;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.logging.Level;
-
+import me.mcf5.logic.ArrayI;
 import me.mcf5.main.Config;
 import me.mcf5.main.MCF5;
 import me.mcf5.main.Util;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
 import org.bukkit.block.Hopper;
 import org.bukkit.block.Sign;
 import org.bukkit.event.EventHandler;
@@ -22,7 +20,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 public class Conveyor implements Listener {
@@ -61,6 +58,13 @@ public class Conveyor implements Listener {
 		if(container.getType() != null){ //IS NOT AIR
 			if(container.getType().equals(Material.CHEST)){
 				//AUTO MOVES, DO NOTHING
+			}else if(container.getType().equals(Material.WORKBENCH) && getHopperConnected(hopper).getType().equals(Material.CHEST)){
+				ItemStack[] craft = Get(container.getLocation());
+				if(ArrayI.hasEnough(craft)){
+					Save(container.getLocation(), ArrayI.removeEnough(craft));
+					Chest chest = ((Chest) getHopperConnected(hopper).getState());
+					chest.getInventory().addItem(GetOutput(container.getLocation()));
+				}
 			}
 		}
 	}
@@ -82,93 +86,28 @@ public class Conveyor implements Listener {
 				}
 				ItemStack[] craft = Get(getHopperConnected(hopper).getLocation());
 				if(getLast(craft) == null){
-					Bukkit.getLogger().info("EMPTY TABLE");
 					return;
 				}else{
 					
-					
-					
+					ItemStack[]	one = new ItemStack[]{new ItemStack(getLast(contents).getType(), 1), new ItemStack(getSecondLast(contents).getType(), 1)};
+					ItemStack[] two = craft;
+					ArrayI.logEvenly(two);
+					ArrayI.log(one);
+					Save(getHopperConnected(hopper).getLocation(), ArrayI.combineEven(one, two)); //Update Crafting table with combined...
 					h.getInventory().removeItem(new ItemStack(getLast(contents).getType(), 1));
+					h.getInventory().removeItem(new ItemStack(getSecondLast(contents).getType(), 1));
 					h.update();
 					
+					//Update Crafitng Table to Spread out Items
+					//Save(getHopperConnected(hopper).getLocation(), ArrayI.compress(Get(getHopperConnected(hopper).getLocation())));
+					
 				}
-			}else{
-				Bukkit.getLogger().info("INVALID HOPPER - " + hopper.getType().toString());
-			}
-		}else{
-			Bukkit.getLogger().info("INVALID TYPE - " + getHopperConnected(hopper).getType().toString());
-		}
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	public ArrayList<ItemStack> add(ArrayList<ItemStack> one, ArrayList<ItemStack> two)
-	{
-		
-		
-		for(ItemStack s : one) //For all Unique Materials to be added
-		{
-			int amount = 0; for(ItemStack amo : two) { if(s.getType().equals(amo.getType())) { amount++; } } //Gets amount of one in two
-			if(amount == 1) { two.add(s); } //Add if we have one
-			
-			
-			
-		}
-		
-		
-		
-		return two;
-	}
-	
-	
-	
-	
-
-
-
-	
-	public int[] Divide(int i, int am){
-		if((i / am) % 1 == 0){ //Whole Number
-			return newArray((i / am), am);
-		}
-		return new int[]{i};
-	}
-	
-	public int[] newArray(int i, int am){
-		int[] ar = new int[am];
-		int l = 1;
-		while(l < am){
-			ar[l]=i;
-			i++;
-		}
-		return new int[]{i};
-	}
-	
-	
-	public int getAmount(ItemStack[] i, Material mat){
-		int l = 0;
-		for(ItemStack m : i){
-			if(m.getType().equals(mat)){
-				l++;
 			}
 		}
-		return l;
 	}
 	
 	
-	
-	
-	
-	
-	
-	public ItemStack[] Get(Location loc){
+	public static ItemStack[] Get(Location loc){
 		Config config = new Config("crafting");
 		config.Save();
 		ItemStack[] al = new ItemStack[9];
@@ -181,10 +120,22 @@ public class Conveyor implements Listener {
 		return al;
 	}
 	
+	public static ItemStack GetOutput(Location loc){
+		Config config = new Config("crafting");
+		return config.getConfig().getItemStack(toString(loc) + ".output");
+	}
 	
-	
-	
-	
+	public static void Save(Location loc, ItemStack[] m){
+		Config config = new Config("crafting");
+		config.Save();
+		int i = 0;
+		while(i <= 8){
+			int newi = i+1;
+			config.getConfig().set(toString(loc) + "." + newi, m[i]);
+			config.Save();
+			i++;
+		}
+	}
 	
 	public static ItemStack getLast(ItemStack[] i){
 		ItemStack l = null;
@@ -193,6 +144,22 @@ public class Conveyor implements Listener {
 				if(s.getAmount() != 0)
 					l = s;
 		return l;
+	}
+	
+	public static ItemStack getSecondLast(ItemStack[] i){
+		ItemStack l = null;
+		ItemStack o = null;
+		for(ItemStack s : i)	{
+			if(s != null){
+				if(s.getAmount() != 0){
+					o = l;
+					l = s;
+				}
+			}
+		}
+		if(o == null)
+			return l;
+		return o;
 	}
 	
 	public static Block getHopperConnected(Block hopper){
@@ -230,7 +197,6 @@ public class Conveyor implements Listener {
 	@EventHandler
 	public void onBlockPhysicsEvent(BlockPhysicsEvent e){
 		if(e.getBlock().getType().equals(Material.WALL_SIGN) && e.getBlock().getBlockPower() != 0){
-			Bukkit.getLogger().info(e.getBlock().getBlockPower() + "");
 			Sign s = (Sign)e.getBlock().getState();
 			if(ChatColor.stripColor(s.getLine(0)).equalsIgnoreCase("[VALVE]") && canRepeat()){
 				if(ChatColor.stripColor(s.getLine(1)).equalsIgnoreCase("true")){
@@ -255,6 +221,7 @@ public class Conveyor implements Listener {
 			int task = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable(){
 				public void run(){
 					moveItemTarget(s, getAttached(s));
+					moveItemContainer(getAttached(s));
 				}
 			}, 0L, 20L);
 			config.getConfig().set(toString(s.getLocation()) + ".taskID", Integer.valueOf(task));
@@ -263,8 +230,6 @@ public class Conveyor implements Listener {
 			int TaskID = config.getConfig().getInt(toString(s.getLocation()) + ".taskID");
 			if(TaskID != 0){
 				Bukkit.getScheduler().cancelTask(TaskID);
-			}else{
-				Bukkit.getLogger().log(Level.CONFIG, "ERROR. NO TASK ID FOUND FOR SIGN AT - " + toString(s.getLocation()));
 			}
 		}
 	}
@@ -291,11 +256,11 @@ public class Conveyor implements Listener {
 	
 	
 	//REGION UTIL
-	public String toString(Location loc){
+	public static String toString(Location loc){
 		return split(loc.getX() + "") + "," + split(loc.getY() + "") + "," + split(loc.getZ() + "");
 	}
 	
-	public String split(String s){
+	public static String split(String s){
 		return s.split("\\.", 2)[0];
 	}
 	
@@ -343,7 +308,6 @@ public class Conveyor implements Listener {
 				Sign sign = (Sign)b.getState();
 				if(ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase("[VALVE]")){
 					String value = ChatColor.stripColor(sign.getLine(1));
-					Bukkit.getLogger().info(sign.getLine(1));
 					if(value.equalsIgnoreCase("false")){
 						sign.setLine(1, ChatColor.BLUE + "true");
 						update(sign, "true");

@@ -1,6 +1,6 @@
 name: MCF5
 version: 1.0
-description: Velocity-Interactive!
+description: Made by your one and only, _Savant...
 main: me.mcf5.main.MCF5
 commands:
   reset:
@@ -12,3 +12,5 @@ commands:
   refine:
   license:
   chat:
+  forcecrate:
+  cm:

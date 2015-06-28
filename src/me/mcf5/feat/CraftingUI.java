@@ -1,30 +1,23 @@
 package me.mcf5.feat;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import net.minecraft.server.v1_8_R1.Container;
-import net.minecraft.server.v1_8_R1.InventoryCrafting;
-import net.minecraft.server.v1_8_R1.CraftingManager;
-import net.minecraft.server.v1_8_R1.PacketPlayOutSetSlot;
-import net.minecraft.server.v1_8_R1.WorldServer;
+import me.mcf5.main.Config;
+import me.mcf5.main.MCF5;
+import me.mcf5.main.Util;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.block.Sign;
-import org.bukkit.craftbukkit.v1_8_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_8_R1.inventory.CraftInventory;
-import org.bukkit.craftbukkit.v1_8_R1.inventory.CraftItemStack;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -36,10 +29,6 @@ import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
-
-import me.mcf5.main.Config;
-import me.mcf5.main.MCF5;
-import me.mcf5.main.Util;
 
 public class CraftingUI implements Listener{
 	
@@ -69,7 +58,13 @@ public class CraftingUI implements Listener{
 	
 	
 	
-	
+	//REMOVE DROPS ON BEAK
+	@EventHandler
+	public void onBreak(BlockBreakEvent e){
+		if(e.getBlock().getType().equals(Material.WORKBENCH)){
+			ClearCraftingDrops(e.getBlock().getLocation());
+		}
+	}
 	
 	
 	
@@ -82,7 +77,7 @@ public class CraftingUI implements Listener{
 		if(inv.getType() == InventoryType.WORKBENCH){
 			final Player p = (Player) e.getPlayer();
 			Location loc = p.getTargetBlock(null, 10).getLocation();
-			Save(loc, ((CraftingInventory) e.getInventory()).getMatrix());
+			smartSave((CraftingInventory)inv, loc);
 			e.getInventory().clear();
 			isHasClosed = true;
 			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){
@@ -111,24 +106,24 @@ public class CraftingUI implements Listener{
 				inv.setMatrix(LoreUpdate(inv.getMatrix()));
 				oldMatrix = inv.getMatrix();
 				currentMatrix = inv.getMatrix();		
-				InventoryCrafting handle1 = (InventoryCrafting)((CraftInventory)inv).getInventory();
-				WorldServer world = ((CraftWorld)Util.getDefWorld()).getHandle();
-				CraftingManager.getInstance().craft(handle1, world);
+				//InventoryCrafting handle1 = (InventoryCrafting)((CraftInventory)inv).getInventory();
+				//WorldServer world = ((CraftWorld)Util.getDefWorld()).getHandle();
+				//CraftingManager.getInstance().craft(handle1, world);
 				//p.updateInventory();
-				InventoryCrafting handle = (InventoryCrafting)((CraftInventory)inv).getInventory();
-				int id = 0;
-				try {
-					Field field = InventoryCrafting.class.getDeclaredField("d");
-					field.setAccessible(true);
-					Container container = (Container) field.get(handle);
-					id = container.windowId;
-				} catch (Exception ex){
-					ex.printStackTrace();
-				}
-				net.minecraft.server.v1_8_R1.ItemStack stack = CraftItemStack.asNMSCopy(inv.getItem(0));
-				PacketPlayOutSetSlot packet = new PacketPlayOutSetSlot(id, 0, stack);
-				CraftPlayer cp = (CraftPlayer) p;
-				cp.getHandle().playerConnection.sendPacket(packet);
+				//InventoryCrafting handle = (InventoryCrafting)((CraftInventory)inv).getInventory();
+				//int id = 0;
+				//try {
+				//	Field field = InventoryCrafting.class.getDeclaredField("d");
+				//	field.setAccessible(true);
+				//	Container container = (Container) field.get(handle);
+				//	id = container.windowId;
+				//} catch (Exception ex){
+				//	ex.printStackTrace();
+				//}
+				//net.minecraft.server.v1_8_R1.ItemStack stack = CraftItemStack.asNMSCopy(inv.getItem(0));
+				//PacketPlayOutSetSlot packet = new PacketPlayOutSetSlot(id, 0, stack);
+				//CraftPlayer cp = (CraftPlayer) p;
+				//cp.getHandle().playerConnection.sendPacket(packet);
 			}else{
 				p.playSound(p.getLocation(), Sound.CLICK, 10, 1);
 				e.setCancelled(true);
@@ -241,8 +236,36 @@ public class CraftingUI implements Listener{
 						ItemMeta meta = m.getItemMeta();
 						meta.setLore(lore);
 						m.setItemMeta(meta);
-						Location loc = p.getTargetBlock(null, 10).getLocation();
-						Util.getDefWorld().dropItem(getCorner(loc.add(0.5, 1, 0.5), i), m).setVelocity(new Vector(0,0,0));
+						if(p.getTargetBlock(null, 10).getType().equals(Material.WORKBENCH)){
+							Location loc = p.getTargetBlock(null, 10).getLocation();
+							Util.getDefWorld().dropItem(getCorner(loc.add(0.5, 1, 0.5), i), m).setVelocity(new Vector(0,0,0));
+						}
+						i++;
+					}else{
+						i++;
+					}
+				}
+			}
+		
+		}, 5L);
+	}
+	
+	public void Update(final Location l , final ItemStack[] oldMatrix){
+		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){
+			@Override
+			public void run() {
+				int i = 1;
+				ClearCraftingDrops(l);
+				ItemStack[] Matrix = oldMatrix.clone();
+				for(ItemStack n : Matrix){
+					if(n != null && n.getType() != Material.AIR){
+						ItemStack m = n;
+						List<String> lore = new ArrayList<String>();
+						lore.add("CRAFTING" + i);
+						ItemMeta meta = m.getItemMeta();
+						meta.setLore(lore);
+						m.setItemMeta(meta);
+						Util.getDefWorld().dropItem(getCorner(l.add(0.5, 1, 0.5), i), m).setVelocity(new Vector(0,0,0));
 						i++;
 					}
 				}
@@ -257,7 +280,7 @@ public class CraftingUI implements Listener{
 	
 	
 	//#REGION UTILS
-	public void Save(Location loc, ItemStack[] m){
+	public void q(Location loc, ItemStack[] m){
 		Config config = new Config("crafting");
 		config.Save();
 		int i = 0;
@@ -286,17 +309,48 @@ public class CraftingUI implements Listener{
 	}
 	
 	
+	public static void smartSave(CraftingInventory inv, Location loc){
+		if(inv.getResult() != null)
+			Save(loc, inv.getMatrix(), inv.getResult());
+		else
+			Save(loc, inv.getMatrix());
+	}
+	
+	public static void Save(Location loc, ItemStack[] m){
+		Config config = new Config("crafting");
+		config.Save();
+		int i = 0;
+		while(i <= 8){
+			int newi = i+1;
+			config.getConfig().set(toString(loc) + "." + newi, m[i]);
+			config.Save();
+			i++;
+		}
+	}
+	
+	public static void Save(Location loc, ItemStack[] m, ItemStack output){
+		Config config = new Config("crafting");
+		config.Save();
+		int i = 0;
+		while(i <= 8){
+			int newi = i+1;
+			config.getConfig().set(toString(loc) + "." + newi, m[i]);
+			config.Save();
+			i++;
+		}
+		config.getConfig().set(toString(loc) + ".output", output);
+		config.Save();
+	}
 	
 	
-	
-	public String toString(Location loc){
+	public static String toString(Location loc){
 		return split(loc.getX() + "") + "," + split(loc.getY() + "") + "," + split(loc.getZ() + "");
 	}
 	
 	
 	
 	
-	public String split(String s){
+	public static String split(String s){
 		return s.split("\\.", 2)[0];
 	}
 	

@@ -2,6 +2,7 @@ package me.mcf5.feat;
 
 import me.mcf5.main.Config;
 import me.mcf5.main.Logger;
+import me.mcf5.main.MCF5;
 import me.mcf5.main.Util;
 
 import org.bukkit.Bukkit;
@@ -16,6 +17,11 @@ import org.bukkit.event.player.PlayerChatTabCompleteEvent;
 
 public class Chat implements Listener, CommandExecutor{
 	
+	MCF5 plugin;
+	public Chat(MCF5 plugin){
+		this.plugin = plugin;
+	}
+	
 	//TALK LOCAL
 	@EventHandler
 	public void ChatMsg(AsyncPlayerChatEvent e){
@@ -25,16 +31,29 @@ public class Chat implements Listener, CommandExecutor{
 		e.setCancelled(true);
 	}
 	
+	boolean spam;
 	//TALK GLOBAL
 	@EventHandler
 	public void onTabChat(PlayerChatTabCompleteEvent  e){
-		Player p = e.getPlayer();
-		String m = e.getChatMessage();
-		e.getTabCompletions().clear();
-		Chat.ChatMsg(m, p, true);
-		org.bukkit.inventory.Inventory inv = Bukkit.getServer().createInventory(null, 9);
-		p.openInventory(inv);
-		p.closeInventory();
+		if(!spam){
+			spam = true;
+			Player p = e.getPlayer();
+			String m = e.getChatMessage();
+			e.getTabCompletions().clear();
+			Chat.ChatMsg(m, p, true);
+			org.bukkit.inventory.Inventory inv = Bukkit.getServer().createInventory(null, 9);
+			p.openInventory(inv);
+			p.closeInventory();
+			reset();
+		}
+	}
+	
+	private void reset(){
+		Bukkit.getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable(){
+			public void run(){
+				spam = false;
+			}
+		}, 10L);
 	}
 	
 	//TALK MSG
@@ -61,16 +80,17 @@ public class Chat implements Listener, CommandExecutor{
 					}
 					if(config.getConfig().getBoolean(p1.getName().toLowerCase().toString() + ".global")) { return; }
 					if(p1.equals(p)){
-						p.sendMessage(ChatColor.GRAY + "" + "[G]" + ChatColor.UNDERLINE + p.getName().toString() + ChatColor.RESET + ChatColor.GRAY + ": " + ChatColor.GRAY + msg);
+						p.sendMessage(ChatColor.GRAY + "" + "[G]" + ChatColor.BOLD + p.getName().toString() + ChatColor.RESET + ChatColor.GRAY + ": " + ChatColor.GRAY + msg);
 					}else{
 						p1.sendMessage(ChatColor.GRAY + "[G]" + p.getName().toString() + ":" + ChatColor.WHITE + msg);
 					}
 				}else{
 					Bukkit.getLogger().info(p1.getName().toLowerCase());
 					//CHECK FOR DISTANCE
-					if(p.getLocation().distance(p1.getLocation()) < 20 || p.getLocation().distance(p1.getLocation()) > -20){
+					if(p != p1 && p.getLocation().distance(p1.getLocation()) < 20 || p.getLocation().distance(p1.getLocation()) > -20){
+						System.out.println("Distance - " + p.getLocation().distance(p1.getLocation()));
 						if(p1.equals(p)){
-							p.sendMessage(ChatColor.GRAY + "" + "[L]" + ChatColor.UNDERLINE + p.getName().toString() + ChatColor.RESET + ChatColor.GRAY + ": " + ChatColor.GRAY + msg);
+							p.sendMessage(ChatColor.GRAY + "" + "[L]" + ChatColor.BOLD + p.getName().toString() + ChatColor.RESET + ChatColor.GRAY + ": " + ChatColor.GRAY + msg);
 						}else{
 							p1.sendMessage(ChatColor.GRAY + "[L]" + p.getName().toString() + ":" + ChatColor.WHITE + msg);
 						}

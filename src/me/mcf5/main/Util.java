@@ -31,6 +31,9 @@ public class Util implements Listener{
 	}
 	
 	public static World getDefWorld(){
+		if(world == null){
+			world = Bukkit.getWorld("city");
+		}
 		return world;
 	}
 	public static void setDefWorld(String name){

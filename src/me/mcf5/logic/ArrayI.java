@@ -8,6 +8,39 @@ import org.bukkit.inventory.ItemStack;
 
 public class ArrayI {
 	
+	
+	public ItemStack[] spread(ItemStack[] s){
+		s = compress(s);
+		ArrayList<ItemStack> list = new ArrayList<>();
+		for(ItemStack i : s){
+			int byAmount = getAmount(i.getType(), s);
+			list.add(new ItemStack(i.getType(), split(i, byAmount)[0].getAmount()));
+			//getAmount(i.getType(), s);
+			//ArrayI.split
+		}
+		return toArray(list);
+	}
+	
+	
+	public static boolean hasEnough(ItemStack[] s){
+		boolean preview = false;
+		for(ItemStack i : s){
+			if(i.getAmount() > 1)
+				preview = true;
+			else
+				preview = false;
+		}
+		return preview;
+	}
+	
+	public static ItemStack[] removeEnough(ItemStack[] s){
+		ArrayList<ItemStack> list = new ArrayList<>();
+		for(ItemStack i : s){
+			list.add(new ItemStack(i.getType(), i.getAmount() - 1));
+		}
+		return toArray(list);
+	}
+	
 	public static ItemStack[] combineEven(ItemStack[] one, ItemStack[] two){
 		ArrayList<ItemStack> list = new ArrayList<>();
 		list = toArrayList(two);
