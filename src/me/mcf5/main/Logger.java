@@ -11,6 +11,11 @@ public class Logger implements Listener{
 	
 	public static Config config;
 	
+	static MCF5 plugin;
+	public Logger(MCF5 plugin){
+		this.plugin = plugin;
+	}
+	
 	public static String getDate(){
 		Date now = new Date();
 		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
@@ -29,7 +34,7 @@ public class Logger implements Listener{
 	}
 	
 	public static void Initialize(){
-		config = new Config(getDay());
+		config = new Config(getDay(), plugin);
 		config.Save();
 	}
 	

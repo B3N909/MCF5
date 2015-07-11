@@ -52,7 +52,7 @@ public class Conveyor implements Listener {
 		return null;
 	}
 	
-	public static void moveItemContainer(Block hopper){
+	public void moveItemContainer(Block hopper){
 		Location hopperLoc = hopper.getLocation(); 
 		Block container = new Location(hopperLoc.getWorld(), hopperLoc.getX(), hopperLoc.getY() + 1, hopperLoc.getZ()).getBlock();
 		if(container.getType() != null){ //IS NOT AIR
@@ -107,8 +107,8 @@ public class Conveyor implements Listener {
 	}
 	
 	
-	public static ItemStack[] Get(Location loc){
-		Config config = new Config("crafting");
+	public ItemStack[] Get(Location loc){
+		Config config = new Config("crafting", plugin);
 		config.Save();
 		ItemStack[] al = new ItemStack[9];
 		int i = 0;
@@ -120,13 +120,13 @@ public class Conveyor implements Listener {
 		return al;
 	}
 	
-	public static ItemStack GetOutput(Location loc){
-		Config config = new Config("crafting");
+	public ItemStack GetOutput(Location loc){
+		Config config = new Config("crafting", plugin);
 		return config.getConfig().getItemStack(toString(loc) + ".output");
 	}
 	
-	public static void Save(Location loc, ItemStack[] m){
-		Config config = new Config("crafting");
+	public void Save(Location loc, ItemStack[] m){
+		Config config = new Config("crafting", plugin);
 		config.Save();
 		int i = 0;
 		while(i <= 8){
@@ -251,7 +251,7 @@ public class Conveyor implements Listener {
 	}
 	
 	public void Initialize(){
-		config = new Config("valve");
+		config = new Config("valve", plugin);
 	}
 	
 	

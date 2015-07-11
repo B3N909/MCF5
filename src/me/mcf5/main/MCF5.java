@@ -1,5 +1,7 @@
 package me.mcf5.main;
 
+import me.mcf5.events.PlayerClickBlockInfoEvent;
+import me.mcf5.events.PlayerClickBlockInfoEventListener;
 import me.mcf5.feat.ATM;
 import me.mcf5.feat.Broadcaster;
 import me.mcf5.feat.Buisness;
@@ -15,6 +17,7 @@ import me.mcf5.feat.MenuUI;
 import me.mcf5.feat.Refine;
 import me.mcf5.feat.VoteKick;
 import me.mcf5.gui.UIDatabase;
+import me.mcf5.logic.BlockInfo;
 import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.Bukkit;
@@ -52,12 +55,13 @@ public class MCF5 extends JavaPlugin implements Listener{
 		pm.registerEvents(new CraftingUI(this), this);
 		pm.registerEvents(new MenuUI(this), this);
 		pm.registerEvents(new Chat(this), this);
-		pm.registerEvents(new Logger(), this);
+		pm.registerEvents(new Logger(this), this);
 		pm.registerEvents(new Conveyor(this), this);
 		pm.registerEvents(new Crate(this), this);
 		pm.registerEvents(new ATM(this), this);
 		pm.registerEvents(new Cars(), this);
 		pm.registerEvents(new Buisness(this), this);
+		pm.registerEvents(new PlayerClickBlockInfoEventListener(this), this);
 		
 		UIDatabase.Initialize();
 		
@@ -66,6 +70,7 @@ public class MCF5 extends JavaPlugin implements Listener{
         Logger.Initialize();
 		
         
+        getCommand("block").setExecutor(new BlockInfo(this));
 		getCommand("cm").setExecutor(new Buisness(this));
 		getCommand("reset").setExecutor(new DoorListener(pm));	
 		getCommand("delete").setExecutor(new DoorListener(pm));	

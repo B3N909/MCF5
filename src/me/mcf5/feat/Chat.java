@@ -27,7 +27,7 @@ public class Chat implements Listener, CommandExecutor{
 	public void ChatMsg(AsyncPlayerChatEvent e){
 		String msg = e.getMessage();
 		Player p = e.getPlayer();
-		ChatMsg(msg, p, false);
+		ChatMsg(msg, p, false, plugin);
 		e.setCancelled(true);
 	}
 	
@@ -40,7 +40,7 @@ public class Chat implements Listener, CommandExecutor{
 			Player p = e.getPlayer();
 			String m = e.getChatMessage();
 			e.getTabCompletions().clear();
-			Chat.ChatMsg(m, p, true);
+			Chat.ChatMsg(m, p, true, plugin);
 			org.bukkit.inventory.Inventory inv = Bukkit.getServer().createInventory(null, 9);
 			p.openInventory(inv);
 			p.closeInventory();
@@ -57,9 +57,9 @@ public class Chat implements Listener, CommandExecutor{
 	}
 	
 	//TALK MSG
-	public static void ChatMsg(String msg, Player p, boolean isPublic){
+	public static void ChatMsg(String msg, Player p, boolean isPublic, MCF5 plugin){
 		if(p.getWorld().getName().equalsIgnoreCase("city")){
-			Config config = new Config("chat"); //REGISTERING CONFIGURATION
+			Config config = new Config("chat", plugin); //REGISTERING CONFIGURATION
 			config.Save();
 			
 			if(isPublic){ //LOGGING MESSAGES
@@ -106,13 +106,13 @@ public class Chat implements Listener, CommandExecutor{
 		if(cmd.getName().equalsIgnoreCase("chat")){
 			if(args.length == 1){
 				if(args[0].equalsIgnoreCase("off")){
-					Config config = new Config("chat");
+					Config config = new Config("chat", plugin);
 					config.Save();
 					config.getConfig().set(p.getName().toLowerCase().toString() + ".global", true);
 					config.Save();
 					Util.sendMessage(p, "Global Chat off");
 				}else if(args[0].equalsIgnoreCase("on")){
-					Config config = new Config("chat");
+					Config config = new Config("chat", plugin);
 					config.Save();
 					config.getConfig().set(p.getName().toLowerCase().toString() + ".global", false);
 					config.Save();

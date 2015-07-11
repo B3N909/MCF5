@@ -2,13 +2,16 @@ package me.mcf5.main;
 
 import java.io.File;
 import java.io.IOException;
-
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 public class Config {
 	
 	public FileConfiguration getConfig() {
+		if(plugin == null){
+			System.out.println("NULL CHECK ERROR");
+			return fc;
+		}
 		return fc;
 	}
 
@@ -29,11 +32,9 @@ public class Config {
 	private File file;
 	
 	MCF5 plugin;
-	public Config(MCF5 plugin){
-		this.plugin = plugin;
-	}
 	
-	public Config(String n){
+	public Config(String n, MCF5 plugin){
+		this.plugin = plugin;
 		File f = new File(n + ".yml");
 		FileConfiguration fc = YamlConfiguration.loadConfiguration(f);
 		this.fc = fc;

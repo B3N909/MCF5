@@ -4,22 +4,28 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
 import me.mcf5.main.Config;
+import me.mcf5.main.MCF5;
+
 import org.bukkit.entity.Player;
 
 public class Company {
 	
+	
+	MCF5 plugin;
 	public String name;
 	public String owner;
 	public List<String> members = new ArrayList<String>();
 	public int level;
 	public double balance;
 	
-	public static Company create(String name, Player p){
-		return new Company(name, p.getName().toLowerCase());
+	public static Company create(String name, Player p, MCF5 plugin){
+		return new Company(name, p.getName().toLowerCase(), plugin);
 	}
 	
-	public Company(String name, String owner){
+	public Company(String name, String owner, MCF5 plugin){
+		this.plugin = plugin;
 		this.name = name;
 		this.owner = owner;
 		this.level = 1;
@@ -27,7 +33,8 @@ public class Company {
 		this.save();
 	}
 	
-	public Company(String name, String owner, int level, double balance, List<String> memebers){
+	public Company(String name, String owner, int level, double balance, List<String> memebers, MCF5 plugin){
+		this.plugin = plugin;
 		this.name = name;
 		this.owner = owner;
 		this.members = memebers;
@@ -36,20 +43,20 @@ public class Company {
 	}
 	
 	
-	public static Company get(String name){
-		if(exists(name)){
-			Config cfg = new Config("company");
+	public static Company get(String name, MCF5 plugin){
+		if(exists(name, plugin)){
+			Config cfg = new Config("company", plugin);
 			cfg.Save();
 			String owner = cfg.getConfig().getString(name + ".owner");
 			int level = cfg.getConfig().getInt(name + ".level");
 			double balance = cfg.getConfig().getDouble(name + ".balance");
-			return new Company(name, owner, level, balance, getMembers(name));
+			return new Company(name, owner, level, balance, getMembers(name, plugin), plugin);
 		}
 		return null;
 	}
 	
-	public static List<String> getMembers(String name){
-		Config cfg = new Config("company");
+	public static List<String> getMembers(String name, MCF5 plugin){
+		Config cfg = new Config("company", plugin);
 		cfg.Save();
 		List<String> members = new ArrayList<String>();
 		if(cfg.getConfig().getConfigurationSection(name + ".memebers") != null)
@@ -59,19 +66,19 @@ public class Company {
 		return members;
 	}
 	
-	public static Company get(Player p){
-		if(isOwner(p)){
-			Config cfg = new Config("company");
+	public static Company get(Player p, MCF5 plugin){
+		if(isOwner(p, plugin)){
+			Config cfg = new Config("company", plugin);
 			cfg.Save();
 			for(String s : cfg.getConfig().getConfigurationSection("").getKeys(false))
 				if(cfg.getConfig().getString(s + ".owner").equalsIgnoreCase(p.getName().toLowerCase()))
-					return get(s);
+					return get(s, plugin);
 		}
 		return null;
 	}
 	
-	public static boolean exists(String name){
-		Config cfg = new Config("company");
+	public static boolean exists(String name, MCF5 plugin){
+		Config cfg = new Config("company", plugin);
 		cfg.Save();
 		for(String s : cfg.getConfig().getConfigurationSection("").getKeys(false))
 			if(s.equalsIgnoreCase(name))
@@ -89,7 +96,7 @@ public class Company {
 	}
 	
 	public void save(){
-		Config cfg = new Config("company");
+		Config cfg = new Config("company", plugin);
 		cfg.Save();
 		cfg.getConfig().set(this.name + ".level", Integer.valueOf(this.level));
 		cfg.getConfig().set(this.name + ".owner", String.valueOf(this.owner));
@@ -99,8 +106,8 @@ public class Company {
 		cfg.Save();
 	}
 	
-	public static boolean isOwner(Player p){
-		Config cfg = new Config("company");
+	public static boolean isOwner(Player p, MCF5 plugin){
+		Config cfg = new Config("company", plugin);
 		cfg.Save();
 		for(String s : cfg.getConfig().getConfigurationSection("").getKeys(false))
 			if(cfg.getConfig().getString(s + ".owner").equalsIgnoreCase(p.getName().toLowerCase()))
@@ -109,7 +116,7 @@ public class Company {
 	}
 	
 	public boolean isMember(String name){
-		Config cfg = new Config("company");
+		Config cfg = new Config("company", plugin);
 		cfg.Save();
 		for(String s : this.members)
 			if(s.equalsIgnoreCase(name))
@@ -119,7 +126,7 @@ public class Company {
 	
 	public void setPayment(String member, double value){
 		if(isMember(member)){
-			Config cfg = new Config("company");
+			Config cfg = new Config("company", plugin);
 			cfg.Save();
 			cfg.getConfig().set(this.name + ".members." + member, Double.valueOf(value));
 		}
@@ -127,17 +134,17 @@ public class Company {
 	}
 	
 	public void setOwner(String name){
-		Config cfg = new Config("company");
+		Config cfg = new Config("company", plugin);
 		cfg.Save();
 		cfg.getConfig().set(this.name + ".owner", String.valueOf(name));
 		this.owner = name;
 		cfg.Save();
 	}
 	
-	public static List<String> listCompanys(){
+	public static List<String> listCompanys(MCF5 plugin){
 		final List<String> list = new ArrayList<String>();
 		List<Double> money = new ArrayList<Double>();
-		Config cfg = new Config("company");
+		Config cfg = new Config("company", plugin);
 		cfg.Save();
 		for(String company : cfg.getConfig().getConfigurationSection("").getKeys(false)){
 			list.add(company);
@@ -155,14 +162,14 @@ public class Company {
 	
 	public void deposit(double amount){
 		this.balance += amount;
-		Config cfg = new Config("company");
+		Config cfg = new Config("company", plugin);
 		cfg.getConfig().set(this.name + ".balance", this.balance);
 		cfg.Save();
 	}
 	
 	public void withdraw(double amount){
 		this.balance -= amount;
-		Config cfg = new Config("company");
+		Config cfg = new Config("company", plugin);
 		cfg.getConfig().set(this.name + ".balance", this.balance);
 		cfg.Save();
 	}
@@ -172,7 +179,7 @@ public class Company {
 	}
 	
 	public void delete(Player p){
-		Config cfg = new Config("company");
+		Config cfg = new Config("company", plugin);
 		cfg.getConfig().set(this.name, null);
 		cfg.Save();
 	}

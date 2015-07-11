@@ -17,4 +17,5 @@ public class PlayerJoinBoatEventListener implements Listener{
 				Bukkit.getServer().getPluginManager().callEvent(new PlayerJoinBoatEvent(p, (Boat) entity));
 		}
 	}
+	
 }

@@ -41,15 +41,15 @@ public class Buisness implements Listener, CommandExecutor{
 					p.sendMessage("/cm info <company> - Displays stock holdings and info on a company");
 					p.sendMessage("/cm sell <company> <amount>");
 				}else if(args[0].equalsIgnoreCase("stats")){
-					if(Company.isOwner(p)){
-						p.sendMessage(ChatColor.BLUE + "You own " + ChatColor.GOLD + Company.get(p).name.toUpperCase() + ChatColor.BLUE +", NetWorth of: " + ChatColor.GOLD + Company.get(p).balance() + "$");
-						p.sendMessage(ChatColor.BLUE + "You have " + ChatColor.GOLD + Company.get(p).members.toArray().length + ChatColor.BLUE + " employees!");
+					if(Company.isOwner(p, plugin)){
+						p.sendMessage(ChatColor.BLUE + "You own " + ChatColor.GOLD + Company.get(p, plugin).name.toUpperCase() + ChatColor.BLUE +", NetWorth of: " + ChatColor.GOLD + Company.get(p, plugin).balance() + "$");
+						p.sendMessage(ChatColor.BLUE + "You have " + ChatColor.GOLD + Company.get(p, plugin).members.toArray().length + ChatColor.BLUE + " employees!");
 					}else{
 						p.sendMessage("You don't own a Company, create one with /cm create <name>");
 					}
 				}else if(args[0].equalsIgnoreCase("disband")){
-					if(Company.isOwner(p)){
-						Company cmp = Company.get(p);
+					if(Company.isOwner(p, plugin)){
+						Company cmp = Company.get(p, plugin);
 						p.sendMessage(ChatColor.BLUE + "You left " + ChatColor.GOLD + cmp.name.toUpperCase() + ChatColor.BLUE + " it is now " + ChatColor.GOLD + "DELETED" + ChatColor.BLUE + " you lost " + ChatColor.GOLD + cmp.balance + "$");
 						cmp.delete(p);
 					}else{
@@ -58,13 +58,13 @@ public class Buisness implements Listener, CommandExecutor{
 				}else if(args[0].equalsIgnoreCase("create")){
 					p.sendMessage("/cm create <name>");
 				}else if(args[0].equalsIgnoreCase("list")){
-					List<String> companys = Company.listCompanys();
+					List<String> companys = Company.listCompanys(plugin);
 					if(companys != null && companys.toArray().length != 0){
 						p.sendMessage(ChatColor.BLUE + "~~~~" + ChatColor.GOLD + " Company List Based on Ranking" + ChatColor.BLUE + " ~~~~");
 						int i = 1;
 						for(String name : companys){
 							if(i < 15){
-								p.sendMessage(ChatColor.BLUE + "" + i + ".) " + ChatColor.GOLD + name.toUpperCase() + ChatColor.BLUE + " owned by " + ChatColor.GOLD + Company.get(name).owner.toUpperCase());
+								p.sendMessage(ChatColor.BLUE + "" + i + ".) " + ChatColor.GOLD + name.toUpperCase() + ChatColor.BLUE + " owned by " + ChatColor.GOLD + Company.get(name, plugin).owner.toUpperCase());
 								i++;
 							}else{
 								return true;
@@ -78,23 +78,23 @@ public class Buisness implements Listener, CommandExecutor{
 				}
 			}else if(args.length == 2){
 				if(args[0].equalsIgnoreCase("create")){
-					if(Company.exists(args[1])){
+					if(Company.exists(args[1], plugin)){
 						p.sendMessage("Company already exists!");
 					}else{
-						if(!Company.isOwner(p)){
-							Company cmp = Company.create(args[1], p);
-							p.sendMessage(ChatColor.BLUE + "You created " + ChatColor.GOLD + Company.get(p).name.toUpperCase() + ChatColor.BLUE +", NetWorth of: " + ChatColor.GOLD + Company.get(p).balance + "$");
+						if(!Company.isOwner(p, plugin)){
+							Company cmp = Company.create(args[1], p, plugin);
+							p.sendMessage(ChatColor.BLUE + "You created " + ChatColor.GOLD + Company.get(p, plugin).name.toUpperCase() + ChatColor.BLUE +", NetWorth of: " + ChatColor.GOLD + Company.get(p, plugin).balance + "$");
 						}else{
 							p.sendMessage("You already have a company, leave the current one to create a new one!");
 						}
 					}
 				}else if(args[0].equalsIgnoreCase("deposit")){
 					if(tryParseDouble(args[1])){
-						if(Company.isOwner(p)){
+						if(Company.isOwner(p, plugin)){
 							double amount = Double.parseDouble(args[1]);
 							if(plugin.econ.getBalance(p) >= amount){
 								plugin.econ.withdrawPlayer(p, amount);
-								Company cmp = Company.get(p);
+								Company cmp = Company.get(p, plugin);
 								double oldBalance = cmp.balance();
 								cmp.deposit(amount);
 								p.sendMessage(ChatColor.BLUE + "Deposited " + ChatColor.GOLD + amount + "$" + ChatColor.BLUE + ", " +ChatColor.BLUE + "Balance of " + ChatColor.GOLD + oldBalance + "$ " + ChatColor.BLUE + "changed to " + ChatColor.GOLD + cmp.balance + "$" + ChatColor.BLUE + " in " + ChatColor.GOLD + cmp.name.toUpperCase());
@@ -110,9 +110,9 @@ public class Buisness implements Listener, CommandExecutor{
 					}
 				}else if(args[0].equalsIgnoreCase("withdraw")){
 					if(tryParseDouble(args[1])){
-						if(Company.isOwner(p)){
+						if(Company.isOwner(p, plugin)){
 							double amount = Double.parseDouble(args[1]);
-							Company cmp = Company.get(p);
+							Company cmp = Company.get(p, plugin);
 							if(cmp.balance() - amount >= 0){
 								plugin.econ.depositPlayer(p, amount);
 								double oldBalance = cmp.balance();
@@ -129,10 +129,10 @@ public class Buisness implements Listener, CommandExecutor{
 						p.sendMessage("Invalid Amount!");
 					}
 				}else if(args[0].equalsIgnoreCase("info")){
-					if(Company.exists(args[1])){
-						Company cmp = Company.get(args[1]);
-						p.sendMessage(ChatColor.GOLD + Company.get(p).name.toUpperCase() + ChatColor.BLUE +", NetWorth of: " + ChatColor.GOLD + Company.get(p).balance() + "$");
-						p.sendMessage(ChatColor.BLUE + "This company has " + ChatColor.GOLD + Company.get(p).members.toArray().length + ChatColor.BLUE + " employees!");
+					if(Company.exists(args[1], plugin)){
+						Company cmp = Company.get(args[1], plugin);
+						p.sendMessage(ChatColor.GOLD + Company.get(p, plugin).name.toUpperCase() + ChatColor.BLUE +", NetWorth of: " + ChatColor.GOLD + Company.get(p, plugin).balance() + "$");
+						p.sendMessage(ChatColor.BLUE + "This company has " + ChatColor.GOLD + Company.get(p, plugin).members.toArray().length + ChatColor.BLUE + " employees!");
 						p.sendMessage(ChatColor.BLUE + "1 Share is worth " + ChatColor.GOLD + (double)cmp.stockPricePerShare(cmp) + "$" + ChatColor.BLUE + ", 5 Shares are " + ChatColor.GOLD + (double)cmp.stockPricePerShare(cmp) * 5 + "$" + ChatColor.BLUE + ", and 100 Shares are " + ChatColor.GOLD + cmp.stockPricePerShare(cmp) * 100 + "$");
 						if(getShares(cmp, p) != 0){
 							int shares = getShares(cmp, p);
@@ -146,11 +146,11 @@ public class Buisness implements Listener, CommandExecutor{
 				}
 			}else if(args.length == 3){
 				if(args[0].equalsIgnoreCase("pay")){
-					if(Company.get(args[1]) != null){
+					if(Company.get(args[1], plugin) != null){
 						if(tryParseDouble(args[2])){
-							if(Company.isOwner(p)){
-								Company cmp = Company.get(p);
-								Company target = Company.get(args[1]);
+							if(Company.isOwner(p, plugin)){
+								Company cmp = Company.get(p, plugin);
+								Company target = Company.get(args[1], plugin);
 								double send = Double.parseDouble(args[2]);
 								if(Bukkit.getOfflinePlayer(target.owner) != null){
 									if(cmp.balance - send >= 0){
@@ -174,9 +174,9 @@ public class Buisness implements Listener, CommandExecutor{
 					}
 				}else if(args[0].equalsIgnoreCase("buy")){
 					//cm buy <company> <price>
-					if(Company.exists(args[1])){
+					if(Company.exists(args[1], plugin)){
 						if(tryParseInteger(args[2])){
-							Company cmp = Company.get(args[1]);
+							Company cmp = Company.get(args[1], plugin);
 							int amount = Integer.parseInt(args[2]);
 							if(plugin.econ.getBalance(p) >= cmp.stockPricePerShare(cmp) * amount){
 								plugin.econ.withdrawPlayer(p, cmp.stockPricePerShare(cmp) * amount);
@@ -193,10 +193,11 @@ public class Buisness implements Listener, CommandExecutor{
 						p.sendMessage("Company does not exist!");
 					}
 				}else if(args[0].equalsIgnoreCase("sell")){
-					if(Company.exists(args[1])){
+					if(Company.exists(args[1], plugin)){
 						if(tryParseInteger(args[2])){
-							Company cmp = Company.get(args[2]);
+							Company cmp = Company.get(args[1], plugin);
 							int amount = Integer.parseInt(args[2]);
+							System.out.println(getShares(cmp, p) - amount);
 							if(getShares(cmp, p) - amount >= 0){
 								plugin.econ.depositPlayer(p, cmp.stockPricePerShare(cmp) * amount);
 								takeShares(cmp, p, amount);
@@ -235,7 +236,7 @@ public class Buisness implements Listener, CommandExecutor{
 	}
 	
 	private void addShares(Company cmp, Player p, int amount){
-		Config cfg = new Config("stock");
+		Config cfg = new Config("stock", plugin);
 		cfg.Save();
 		int oldAmount = cfg.getConfig().getInt(p.getName().toLowerCase() + "." + cmp.name.toLowerCase());
 		cfg.getConfig().set(p.getName().toLowerCase() + "." + cmp.name.toLowerCase(), Integer.valueOf(oldAmount + amount));
@@ -243,17 +244,23 @@ public class Buisness implements Listener, CommandExecutor{
 	}
 	
 	private void takeShares(Company cmp, Player p, int amount){
-		Config cfg = new Config("stock");
+		Config cfg = new Config("stock", plugin);
 		cfg.Save();
 		int oldAmount = cfg.getConfig().getInt(p.getName().toLowerCase() + "." + cmp.name.toLowerCase());
-		cfg.getConfig().set(p.getName().toLowerCase() + "." + cmp.name.toLowerCase(), Integer.valueOf(oldAmount - amount));
+		int newAmount = oldAmount - amount;
+		cfg.getConfig().set(p.getName().toLowerCase() + "." + cmp.name.toLowerCase(), Integer.valueOf(newAmount));
 		cfg.Save();
 	}
 	
 	private int getShares(Company cmp, Player p){
-		Config cfg = new Config("stock");
-		cfg.Save();
-		return cfg.getConfig().getInt(p.getName().toLowerCase() + "." + cmp.name.toLowerCase());
+		Config cfg = new Config("stock", plugin);
+		System.out.println(p.getName().toLowerCase() + "." + cmp.name.toLowerCase());
+		try{
+			return cfg.getConfig().getInt(p.getName().toLowerCase() + "." + cmp.name.toLowerCase());
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return 0;
 	}
 	
 	

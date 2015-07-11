@@ -281,7 +281,7 @@ public class CraftingUI implements Listener{
 	
 	//#REGION UTILS
 	public void q(Location loc, ItemStack[] m){
-		Config config = new Config("crafting");
+		Config config = new Config("crafting", plugin);
 		config.Save();
 		int i = 0;
 		while(i <= 8){
@@ -296,7 +296,7 @@ public class CraftingUI implements Listener{
 	
 	
 	public ItemStack[] Get(Location loc){
-		Config config = new Config("crafting");
+		Config config = new Config("crafting", plugin);
 		config.Save();
 		ItemStack[] al = new ItemStack[9];
 		int i = 0;
@@ -309,15 +309,15 @@ public class CraftingUI implements Listener{
 	}
 	
 	
-	public static void smartSave(CraftingInventory inv, Location loc){
+	public void smartSave(CraftingInventory inv, Location loc){
 		if(inv.getResult() != null)
 			Save(loc, inv.getMatrix(), inv.getResult());
 		else
 			Save(loc, inv.getMatrix());
 	}
 	
-	public static void Save(Location loc, ItemStack[] m){
-		Config config = new Config("crafting");
+	public void Save(Location loc, ItemStack[] m){
+		Config config = new Config("crafting", plugin);
 		config.Save();
 		int i = 0;
 		while(i <= 8){
@@ -328,8 +328,8 @@ public class CraftingUI implements Listener{
 		}
 	}
 	
-	public static void Save(Location loc, ItemStack[] m, ItemStack output){
-		Config config = new Config("crafting");
+	public void Save(Location loc, ItemStack[] m, ItemStack output){
+		Config config = new Config("crafting", plugin);
 		config.Save();
 		int i = 0;
 		while(i <= 8){
