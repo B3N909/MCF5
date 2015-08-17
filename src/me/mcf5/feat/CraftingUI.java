@@ -65,8 +65,7 @@ public class CraftingUI implements Listener{
 			ClearCraftingDrops(e.getBlock().getLocation());
 		}
 	}
-	
-	
+		
 	
 	
 	boolean isHasClosed;

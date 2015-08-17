@@ -27,8 +27,8 @@ public class ATM implements Listener{
 	@EventHandler
 	public void onSign(SignChangeEvent  e){
 		if(e.getLine(0).equalsIgnoreCase("[atm]")){
-			e.setLine(0, ChatColor.WHITE + "== ATM ==");
-			e.setLine(1, ChatColor.GREEN + "> " + ChatColor.WHITE + "Withdraw");
+			e.setLine(0, ChatColor.DARK_GRAY + "== ATM ==");
+			e.setLine(1, ChatColor.GREEN + "> " + ChatColor.DARK_GRAY + "Withdraw");
 			e.setLine(2, ChatColor.BLACK + "Deposit");
 			e.setLine(3, ChatColor.DARK_GRAY + "Click for Balance");
 		}
@@ -39,26 +39,26 @@ public class ATM implements Listener{
 		if(e.getClickedBlock() != null && e.getClickedBlock().getType().equals(Material.WALL_SIGN)){
 			Sign s = (Sign) e.getClickedBlock().getState();
 			if(e.getAction() == Action.LEFT_CLICK_BLOCK){
-				if(s.getLine(1).equals(ChatColor.GREEN + "> " + ChatColor.WHITE + "Withdraw")){
+				if(s.getLine(1).equals(ChatColor.GREEN + "> " + ChatColor.DARK_GRAY + "Withdraw")){
 					setUse(s, e.getPlayer());
-					s.setLine(1, ChatColor.GREEN + "> " + ChatColor.WHITE + "Deposit");
+					s.setLine(1, ChatColor.GREEN + "> " + ChatColor.DARK_GRAY + "Deposit");
 					s.setLine(2, ChatColor.BLACK + "Withdraw");
 					s.update();
-				}else if(s.getLine(1).equals(ChatColor.GREEN + "> " + ChatColor.WHITE + "Deposit")){
+				}else if(s.getLine(1).equals(ChatColor.GREEN + "> " + ChatColor.DARK_GRAY + "Deposit")){
 					setUse(s, e.getPlayer());
-					s.setLine(1, ChatColor.GREEN + "> " + ChatColor.WHITE + "Withdraw");
+					s.setLine(1, ChatColor.GREEN + "> " + ChatColor.DARK_GRAY + "Withdraw");
 					s.setLine(2, ChatColor.BLACK + "Deposit");
 					s.update();
 				}
 			}else if(e.getAction() == Action.RIGHT_CLICK_BLOCK){
 				Player p = e.getPlayer();
-				if(s.getLine(1).equals(ChatColor.GREEN + "> " + ChatColor.WHITE + "Withdraw")){
+				if(s.getLine(1).equals(ChatColor.GREEN + "> " + ChatColor.DARK_GRAY + "Withdraw")){
 					if(p.isSneaking()){
 						withdraw(p, true, s);
 					}else{
 						withdraw(p, false, s);
 					}
-				}else if(s.getLine(1).equals(ChatColor.GREEN + "> " + ChatColor.WHITE + "Deposit")){
+				}else if(s.getLine(1).equals(ChatColor.GREEN + "> " + ChatColor.DARK_GRAY + "Deposit")){
 					if(p.isSneaking()){
 						deposit(p, true, s);
 					}else{
@@ -101,10 +101,13 @@ public class ATM implements Listener{
 		if(p.getInventory().contains(Material.GOLD_INGOT)){
 			if(all){
 				int amount = 0;
+				int highest = 0;
 				for(ItemStack s1 : p.getInventory().getContents()){
 					if(s1 != null && s1.getType().equals(Material.GOLD_INGOT))
-						amount = s1.getAmount();
+						if(s1.getAmount() > highest)
+							highest = s1.getAmount();
 				}
+				amount = highest;
 				plugin.econ.depositPlayer(p, (double)amount * 5);
 				p.getInventory().removeItem(new ItemStack(Material.GOLD_INGOT, amount));
 				p.updateInventory();

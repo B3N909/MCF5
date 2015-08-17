@@ -2,8 +2,8 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="C:/Users/Ben/Desktop/DarkRP/bukkit.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Ben/Desktop/DarkRP/plugins/BarAPI.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Ben/Desktop/DarkRP/plugins/Vault.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ben/Desktop/Minecraft Development/DarkRP/bukkit.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ben/Desktop/Minecraft Development/DarkRP/plugins/BarAPI.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ben/Desktop/Minecraft Development/DarkRP/plugins/Vault.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
